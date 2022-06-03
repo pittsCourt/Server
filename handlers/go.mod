@@ -1,3 +1,3 @@
-module github.com/pittsCourt/Server1/handlers
+module github.com/pittsCourt/Server/handlers
 
 go 1.18
