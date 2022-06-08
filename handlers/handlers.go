@@ -18,6 +18,14 @@ func FirstHandler(res http.ResponseWriter, req *http.Request) {
 	res.Write(b)
 }
 
+// func SecondHandler(res http.ResponseWriter, req *http.Request) {
+// 	m := Data{2, "two"}
+// 	b, _ := json.Marshal(m)
+// 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
+// 	res.WriteHeader(200)
+// 	res.Write(b)
+// }
+
 type SecondHandler struct{}
 
 func (h SecondHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
