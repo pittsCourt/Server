@@ -1,8 +1,13 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Data struct {
@@ -10,28 +15,76 @@ type Data struct {
 	Value string //`json:"value"`
 }
 
+var db *sql.DB
+
 func FirstHandler(res http.ResponseWriter, req *http.Request) {
-	m := Data{1, "one"}
-	b, _ := json.Marshal(m)
+	// Commenting out the use of the above struct,
+	// this was used previously, but now will be using mariadb
+	// to provide json data.
+	// m := Data{1, "one"}
+	// b, _ := json.Marshal(m)
+
+	// Capture connection properties.
+	cfg := mysql.Config{
+		User:                 "root",
+		Passwd:               "root",
+		Net:                  "tcp",
+		Addr:                 "127.0.0.1:3306",
+		DBName:               "server_data",
+		AllowNativePasswords: true,
+	}
+
+	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var s sql.NullString
+	err = db.QueryRow("SELECT attr FROM json_data WHERE id = ?", 1).Scan(&s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	result, err := json.Marshal(s.String)
+
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 	res.WriteHeader(200)
-	res.Write(b)
+	res.Write(result)
 }
-
-// func SecondHandler(res http.ResponseWriter, req *http.Request) {
-// 	m := Data{2, "two"}
-// 	b, _ := json.Marshal(m)
-// 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
-// 	res.WriteHeader(200)
-// 	res.Write(b)
-// }
 
 type SecondHandler struct{}
 
 func (h SecondHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	m := Data{2, "two"}
-	b, _ := json.Marshal(m)
+	// Commenting out the use of the above struct,
+	// this was used previously, but now will be using mariadb
+	// to provide json data.
+	// m := Data{2, "two"}
+	// b, _ := json.Marshal(m)
+
+	// Capture connection properties.
+	cfg := mysql.Config{
+		User:                 "root",
+		Passwd:               "root",
+		Net:                  "tcp",
+		Addr:                 "127.0.0.1:3306",
+		DBName:               "server_data",
+		AllowNativePasswords: true,
+	}
+
+	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var s sql.NullString
+	err = db.QueryRow("SELECT attr FROM json_data WHERE id = ?", 2).Scan(&s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	result, err := json.Marshal(s.String)
+
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 	res.WriteHeader(200)
-	res.Write(b)
+	res.Write(result)
 }
