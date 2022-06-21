@@ -6,14 +6,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/digicert/health"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Data struct {
-	Id    int    //`json:"id"`
-	Value string //`json:"value"`
-}
+// type Data struct {
+// 	Id    int    //`json:"id"`
+// 	Value string //`json:"value"`
+// }
 
 var db *sql.DB
 
@@ -37,13 +38,13 @@ func FirstHandler(res http.ResponseWriter, req *http.Request) {
 	var err error
 	db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		log.Fatal(err)
+		health.Fatal("This is the error: %v", err)
 	}
 
 	var s sql.NullString
 	err = db.QueryRow("SELECT attr FROM json_data WHERE id = ?", 1).Scan(&s)
 	if err != nil {
-		log.Fatal(err)
+		health.Fatal("This is the error: %v", err)
 	}
 	result, err := json.Marshal(s.String)
 
