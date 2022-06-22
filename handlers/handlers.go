@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/digicert/health"
 	"github.com/go-sql-driver/mysql"
@@ -27,10 +28,11 @@ func FirstHandler(res http.ResponseWriter, req *http.Request) {
 
 	// Capture connection properties.
 	cfg := mysql.Config{
-		User:                 "root",
-		Passwd:               "root",
-		Net:                  "tcp",
-		Addr:                 "127.0.0.1:3306",
+		User:   "root",
+		Passwd: "root",
+		Net:    "tcp",
+		Addr:   "127.0.0.1:3306",
+		//Addr:                 "172.17.0.0:3306",
 		DBName:               "server_data",
 		AllowNativePasswords: true,
 	}
@@ -47,10 +49,15 @@ func FirstHandler(res http.ResponseWriter, req *http.Request) {
 		health.Fatal("This is the error: %v", err)
 	}
 	result, err := json.Marshal(s.String)
+	if err != nil {
+		health.Fatal("This is the error: %v", err)
+	}
+	resultStr := string(result)
+	resultByte := []byte((strings.Replace(resultStr, "\\", "", 6)))
 
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 	res.WriteHeader(200)
-	res.Write(result)
+	res.Write(resultByte)
 }
 
 type SecondHandler struct{}
@@ -84,8 +91,13 @@ func (h SecondHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	result, err := json.Marshal(s.String)
+	if err != nil {
+		health.Fatal("This is the error: %v", err)
+	}
+	resultStr := string(result)
+	resultByte := []byte((strings.Replace(resultStr, "\\", "", 6)))
 
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 	res.WriteHeader(200)
-	res.Write(result)
+	res.Write(resultByte)
 }

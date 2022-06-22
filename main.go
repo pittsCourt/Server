@@ -9,6 +9,9 @@ import (
 )
 
 func main() {
+	http.HandleFunc("/health", health.HealthEndpoint)
+	http.Handle("/metrics", health.Metrics())
+
 	health.SetLogLevel("debug")
 	health.SetDebug(true)
 
