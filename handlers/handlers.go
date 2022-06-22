@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/digicert/health"
-	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
@@ -28,32 +27,26 @@ func DataHandler(res http.ResponseWriter, req *http.Request) {
 	}
 	health.Debug("Path contains a value %s", s)
 
-	// Capture connection properties.
-	cfg := mysql.Config{
-		User:   "root",
-		Passwd: "root",
-		Net:    "tcp",
-		Addr:   "127.0.0.1:3306",
-		//Addr:                 "172.17.0.0:3306",
-		DBName:               "server_data",
-		AllowNativePasswords: true,
-	}
-
 	var err error
-	db, err = sqlx.Open("mysql", cfg.FormatDSN())
+	db, err = sqlx.Open("mysql", "root:root@tcp(mariadb:3306)/server_data")
 	if err != nil {
-		health.Fatal("This is the error: %v", err)
+		health.Error("This is the error: %v", err)
 	}
+	health.Info("We've reached this point.")
 
 	var myData []Data
 	err = db.Select(&myData, "SELECT * FROM json_data WHERE id = ?", s)
 	if err != nil {
-		health.Fatal("This is the error: %v", err)
+		health.Error("This is the error: %v", err)
 	}
 
-	result, err := json.Marshal(myData)
-	if err != nil {
-		health.Fatal("This is the error: %v", err)
+	var result []byte
+	if len(myData) > 0 {
+		result, err = json.Marshal(myData[0])
+
+		if err != nil {
+			health.Error("This is the error: %v", err)
+		}
 	}
 
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
