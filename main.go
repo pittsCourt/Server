@@ -11,16 +11,11 @@ import (
 func main() {
 	http.HandleFunc("/health", health.HealthEndpoint)
 	http.Handle("/metrics", health.Metrics())
-
-	health.SetLogLevel("debug")
+	health.SetLogLevel("info")
 	health.SetDebug(true)
 
-	// Handling the /data/1 as a function
-	http.HandleFunc("/data/1", handlers.FirstHandler)
-
-	// Handling the /data/2 as a type
-	sHandler := handlers.SecondHandler{}
-	http.Handle("/data/2", sHandler)
+	// Handling the /data/ as a function
+	http.HandleFunc("/data/", handlers.DataHandler)
 
 	log.Println("Listening on port :8080")
 
